@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: clojure:temurin-21-tools-deps-1.12.5.1654-noble@sha256:10ea96e1219b4b8c413728f1aac2dfb38a2b7d0cd9e38e40dfbde4b17de104b9
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Install standard-clj
+        env:
+          STANDARD_CLJ_VERSION: 0.29.0
+          STANDARD_CLJ_SHA256: ca8bacc833ef87955d3cb1f44f8905e4877ebec4b9c22b30d052fcf0cacbdeb1
+        run: |
+          curl --fail --location --silent --show-error \
+            --output /tmp/standard-clj \
+            "https://github.com/oakmac/standard-clojure-style-js/releases/download/v${STANDARD_CLJ_VERSION}/standard-clj-linux-x86_64"
+          echo "${STANDARD_CLJ_SHA256}  /tmp/standard-clj" | sha256sum --check
+          chmod +x /tmp/standard-clj
+          mv /tmp/standard-clj /usr/local/bin/standard-clj
+
+      - name: Run tests
+        run: clojure -X:test
+
+      - name: Run linter
+        run: clojure -M:lint --lint src test
+
+      - name: Check reflection warnings
+        run: clojure -M:check
+
+      - name: Check formatting
+        run: standard-clj check .
