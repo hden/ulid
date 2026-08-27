@@ -1,0 +1,20 @@
+{:tasks
+ {test {:doc "Runs the test suite"
+        :task (clojure "-X:test")}
+  lint {:doc "Runs clj-kondo"
+        :task (clojure "-M:lint" "--lint" "src" "test")}
+  check {:doc "Checks for reflection warnings"
+         :task (clojure "-M:check")}
+  format:check {:doc "Checks Standard Clojure Style formatting"
+                :task (shell "standard-clj" "check" ".")}
+  format:fix {:doc "Formats Clojure and EDN files"
+              :task (shell "standard-clj" "fix" ".")}
+  coverage {:doc "Runs Cloverage and writes LCOV data"
+            :task (clojure "-M:cov")}
+  crap {:doc "Runs CRAP analysis"
+        :task (clojure "-M:crap")}
+  build {:doc "Build JAR"
+         :task (shell "clojure -T:build jar")}
+  deploy {:doc "Deploy to Clojars"
+          :depends [build]
+          :task (shell "clojure -T:build deploy")}}}

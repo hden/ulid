@@ -1,0 +1,35 @@
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.5"}}
+ :aliases
+ {:test
+  {:extra-paths ["test"]
+   :extra-deps {io.github.cognitect-labs/test-runner
+                {:git/tag "v0.5.1"
+                 :git/sha "dfb30dd"}}
+   :exec-fn cognitect.test-runner.api/test}
+
+  :lint {:replace-deps {clj-kondo/clj-kondo {:mvn/version "2026.08.04"}}
+         :main-opts ["-m" "clj-kondo.main"]}
+
+  :check {:extra-deps {io.github.athos/clj-check
+                       {:git/tag "0.1.0"
+                        :git/sha "0ca84df"}}
+          :main-opts ["-m" "clj-check.check" "src"]}
+
+  :cov  {:extra-paths ["test"]
+         :extra-deps {cloverage/cloverage {:mvn/version "1.2.4"}}
+         :main-opts ["-m" "cloverage.coverage"
+                     "-p" "src"
+                     "-s" "test"
+                     "--lcov"]}
+
+  :crap {:extra-paths ["test"]
+         :extra-deps {io.github.unclebob/crap4clj
+                      {:git/url "https://github.com/unclebob/crap4clj"
+                       :git/sha "e6e0312fb9fe25cb8bdc55557d60c0e1c0568fb9"}}
+         :main-opts ["-m" "crap4clj.core"]}
+
+  :build
+  {:deps {io.github.clojure/tools.build {:mvn/version "0.10.14"}
+          slipset/deps-deploy {:mvn/version "0.2.5"}}
+   :ns-default build}}}
